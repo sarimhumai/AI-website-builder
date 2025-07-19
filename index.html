@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI Website Builder</title>
+  <style>
+    body { font-family: sans-serif; padding: 2rem; max-width: 600px; margin: auto; }
+    textarea { width: 100%; height: 100px; }
+    button { padding: 10px 20px; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <h1>AI Website Builder</h1>
+  <p>Enter a prompt like “Create a site for a bakery in Paris”</p>
+  <textarea id="prompt" placeholder="Your website idea..."></textarea>
+  <br/>
+  <button onclick="generate()">Generate Website</button>
+  <p id="status"></p>
+
+  <script>
+    async function generate() {
+      const prompt = document.getElementById('prompt').value;
+      document.getElementById('status').textContent = 'Generating... Please wait.';
+      const res = await fetch('/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt })
+      });
+
+      if (res.ok) {
+        const blob = await res.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'website.zip';
+        a.click();
+        document.getElementById('status').textContent = 'Website downloaded!';
+      } else {
+        const err = await res.json();
+        document.getElementById('status').textContent = 'Error: ' + err.error;
+      }
+    }
+  </script>
+</body>
+</html>
